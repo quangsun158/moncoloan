@@ -1,0 +1,111 @@
+﻿Để convert file XLS sang XML bằng Apache POI, bạn cần thực hiện các bước sau:
+
+Tạo một đối tượng Workbook từ file XLS sử dụng lớp HSSFWorkbook của Apache POI.
+Truy cập sheet trong workbook và lấy các dữ liệu cần thiết.
+Tạo đối tượng Document mới bằng cách sử dụng lớp DocumentBuilderFactory và DocumentBuilder.
+Tạo các phần tử trong tài liệu XML và thêm các giá trị tương ứng từ bảng tính.
+Lưu tài liệu XML mới được tạo ra bằng cách sử dụng lớp TransformerFactory và Transformer.
+
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Iterator;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+public class XlsToXmlConverter {
+
+   public static void main(String[] args) {
+
+      try {
+
+         // Tạo đối tượng Workbook từ file XLS
+         Workbook workbook = new HSSFWorkbook(new FileInputStream("input.xls"));
+
+         // Truy cập sheet trong workbook
+         Sheet sheet = workbook.getSheetAt(0);
+
+         // Tạo đối tượng Document mới
+         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+         Document doc = docBuilder.newDocument();
+
+         // Tạo phần tử gốc của tài liệu XML
+         Element rootElement = doc.createElement("data");
+         doc.appendChild(rootElement);
+
+         // Lấy tất cả các hàng trong sheet
+         Iterator<Row> rowIterator = sheet.iterator();
+         while (rowIterator.hasNext()) {
+            Row row = rowIterator.next();
+
+            // Tạo phần tử cho mỗi hàng
+            Element rowElement = doc.createElement("row");
+            rootElement.appendChild(rowElement);
+
+            // Lấy tất cả các ô trong hàng
+            Iterator<Cell> cellIterator = row.cellIterator();
+            while (cellIterator.hasNext()) {
+               Cell cell = cellIterator.next();
+
+               // Tạo phần tử cho mỗi ô
+               Element cellElement = doc.createElement("cell");
+               rowElement.appendChild(cellElement);
+
+               // Đặt giá trị cho phần tử ô
+               cellElement.appendChild(doc.createTextNode(cell.getStringCellValue()));
+            }
+         }
+
+         // Lưu tài liệu XML mới được tạo ra
+         TransformerFactory transformerFactory = TransformerFactory.newInstance();
+         Transformer transformer = transformerFactory.newTransformer();
+         DOMSource source = new DOMSource(doc);
+         StreamResult result = new StreamResult(new FileOutputStream(new File("output.xml")));
+         transformer.transform(source, result);
+
+         System.out.println("File output.xml đã được tạo thành công!");
+
+      } catch (ParserConfigurationException pce) {
+         pce.printStackTrace();
+      } catch (Transformer
+}Exception tfe) {
+tfe.printStackTrace();
+} catch (IOException ioe) {
+ioe.printStackTrace();
+} catch (TransformerException te) {
+te.printStackTrace();
+}
+}
+}
+
+
+Trong đoạn mã trên, tôi đã sử dụng các thư viện sau:
+
+- Apache POI: Để đọc dữ liệu từ file XLS.
+- javax.xml.parsers: Để tạo đối tượng Document và các phần tử trong tài liệu XML.
+- javax.xml.transform: Để lưu tài liệu XML mới được tạo ra.
+
+Trong hàm main(), tôi đã thực hiện các bước như đã mô tả ở trên:
+
+- Tạo đối tượng Workbook từ file XLS.
+- Truy cập sheet trong workbook và lấy các dữ liệu cần thiết.
+- Tạo đối tượng Document mới và các phần tử trong tài liệu XML.
+- Tạo các phần tử trong tài liệu XML và thêm các giá trị tương ứng từ bảng tính.
+- Lưu tài liệu XML mới được tạo ra.
+
+Sau khi chạy chương trình, tài liệu XML mới sẽ được lưu vào file "output.xml" trong cùng thư mục với chương trình.
